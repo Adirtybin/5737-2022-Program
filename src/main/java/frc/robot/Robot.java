@@ -74,8 +74,8 @@ public class Robot extends TimedRobot {
   ShuffleboardTab NewTab = Shuffleboard.getTab("NewTab");
   private NetworkTableEntry GyroYaw = NewTab.add("GyroYaw",0).getEntry();
   private NetworkTableEntry GyroYawF = NewTab.add("-GyroYaw",0).getEntry();
-  private NetworkTableEntry LimitPitch = NewTab.add("LimitPitch",0).getEntry();
-  private NetworkTableEntry LimitSpin = NewTab.add("LimitSpin",0).getEntry();
+  private NetworkTableEntry LimitPitch = NewTab.add("LimitPitch",false).getEntry();
+  private NetworkTableEntry LimitSpin = NewTab.add("LimitSpin",false).getEntry();
   private NetworkTableEntry EncoderPitch = NewTab.add("EncoderPitch",0).getEntry();
   private NetworkTableEntry EncoderSpin = NewTab.add("EncoderSpin",0).getEntry();
   private NetworkTableEntry TargetDistance = NewTab.add("TargetDistance",0).getEntry();
@@ -94,6 +94,7 @@ public class Robot extends TimedRobot {
   // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
   private NetworkTableEntry SetPitch = NewTab.add("SetPitch",0).getEntry();
   private NetworkTableEntry AutonomousFinish = NewTab.add("AutoFinish",0).getEntry();
+  private NetworkTableEntry TeamSelect = NewTab.add("TeamSelect",false).getEntry();
 
   private static final double Inv = 1;
   Timer mTimer= new Timer();
@@ -388,6 +389,7 @@ public class Robot extends TimedRobot {
     } 
 
     public double auto_turn(double current_angle, double target_angle){
+      target_angle = -target_angle;
       double auto_turn_output = 0;
       double atkp = 0.004;
       double atki = 0.00001;
@@ -488,8 +490,8 @@ public class Robot extends TimedRobot {
 
     public void go_straight(double meters,double enc){
       
-      drive_left_1.set(auto_drivestraight(enc, meters));
-      drive_right_2.set(auto_drivestraight(enc, meters));
+      drive_left_1.set(auto_drivestraight(-enc, -meters));
+      drive_right_2.set(auto_drivestraight(-enc, -meters));
     }
 
     public void auto_shoot(){
@@ -786,8 +788,10 @@ public class Robot extends TimedRobot {
     gyro.setYaw(0);
     
     mTimer.reset();
+    /**
+     * goto 1st ball and shooter 2 balls.
+     */
     while(mTimer.get()<2){
-      System.out.println("11111111111111111111111111111111");
       // SmartDashboard.putNumber("AUTO_DriverDircation", -gyro.getYaw());
       // GyroYawF.setDouble(-gyro.getYaw());
       GyroYaw.setDouble(gyro.getYaw());
@@ -802,47 +806,42 @@ public class Robot extends TimedRobot {
       auto_shoot();
 
       if((Math.abs(21.65*1.2-encoder_leftdrive.getPosition()))<2){
-        
         if(auto_detect()){
           ball_transmitor_2.set(-0.3);
           motor_transmit_3.set(-0.75);
           try {
             Thread.sleep( 2000 );
           } catch (Exception e){
-            
           }
           ball_transmitor_2.set(0);
           motor_transmit_3.set(0);
-          
-          break;
-          
+          break; 
         }
-        
-        
       } 
-      
     }
 
     
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
+    /**
+     * turn right and shoot
+     */
     mTimer.reset();
     while(mTimer.get()<2){
-      System.out.println("2222222222222222222222222222");
-      double drive_current_angle = -gyro.getYaw();
+      // double gyro.getYaw() = -gyro.getYaw();
       // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
       // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
-      // SmartDashboard.putNumber("AUTO_drication", -gyro.getYaw());
+      // SmartDashboard.putNumber("A%UTO_drication", -gyro.getYaw());
       GyroYawF.setDouble(-gyro.getYaw());
       LeftWheel.setDouble(encoder_leftdrive.getPosition());
       RightWheel.setDouble(encoder_rightdrive.getPosition());
-      drive_left_1.set(auto_turn(drive_current_angle, 110));
-      drive_right_2.set(auto_turn(drive_current_angle, 110));
+      drive_left_1.set(auto_turn(gyro.getYaw(), 110));
+      drive_right_2.set(-auto_turn(gyro.getYaw(), 110));
       
       auto_shoot();
 
-      if((Math.abs(110-drive_current_angle))<5){
+      if((Math.abs(110-gyro.getYaw()))<5){
         break;
       }
     }
@@ -850,9 +849,11 @@ public class Robot extends TimedRobot {
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
+    /**
+     * goto 3rd ball and shoot.
+     */
     mTimer.reset();
     while(mTimer.get()<2){
-      System.out.println("3333333333333333333333333333333333");
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
       // SmartDashboard.putNumber("dir", -gyro.getYaw());
       go_straight(3.2, drive_current_drivestraight);
@@ -875,13 +876,12 @@ public class Robot extends TimedRobot {
     gyro.setYaw(0);
     mTimer.reset();
     while(mTimer.get()<2){
-      System.out.println("44444444444444444444444444444");
-      double drive_current_angle = -gyro.getYaw();
+      // double gyro.getYaw() = -gyro.getYaw();
       // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
       // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
-      drive_left_1.set(auto_turn(drive_current_angle, -30));
-      drive_right_2.set(auto_turn(drive_current_angle, -30));
-      SmartDashboard.putNumber("to", auto_turn(drive_current_angle, -30));
+      drive_left_1.set(auto_turn(gyro.getYaw(), 30));
+      drive_right_2.set(-auto_turn(gyro.getYaw(), 30));
+      SmartDashboard.putNumber("to", auto_turn(gyro.getYaw(), -30));
       // SmartDashboard.putNumber("dir", -gyro.getYaw());
 
       GyroYawF.setDouble(-gyro.getYaw());
@@ -890,7 +890,7 @@ public class Robot extends TimedRobot {
 
       auto_shoot();
 
-      if((Math.abs(-10-drive_current_angle))<5){
+      if((Math.abs(-10-gyro.getYaw()))<5){
         
         break;
         
@@ -903,7 +903,6 @@ public class Robot extends TimedRobot {
     gyro.setYaw(0);
     mTimer.reset();
     while(mTimer.get()<2){
-      System.out.println("5555555555555555555555555555555555");
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
       go_straight(2.1, drive_current_drivestraight);
       // SmartDashboard.putBoolean("finish", true);
@@ -956,7 +955,7 @@ public class Robot extends TimedRobot {
 
     while (true){
       if(limitsw2.get()){
-        System.out.println("TEST");
+        // System.out.println("TEST");
         motor_spin.set(0);
         break;
       }else{
@@ -985,10 +984,12 @@ public class Robot extends TimedRobot {
     }
     if(_joy.getRawAxis(3)<0){
       team = "blue";
-      SmartDashboard.putBoolean("teamset", true);
+      // SmartDashboard.putBoolean("teamset", true);
+      TeamSelect.setBoolean(true);
     }else{
       team = "red";
-      SmartDashboard.putBoolean("teamset", false);
+      // SmartDashboard.putBoolean("teamset", false);
+      TeamSelect.setBoolean(false);
     }
 
     
@@ -1231,11 +1232,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void testPeriodic() {
+    // double gyro.getYaw() = -gyro.getYaw();
     // drive_left_1.set(auto_turn(gyro.getYaw(), -110));
     // drive_right_2.set(-auto_turn(gyro.getYaw(), -110));
+    drive_left_1.set(auto_turn(gyro.getYaw(), -30));
+    drive_right_2.set(-auto_turn(gyro.getYaw(), -30));
 
-    double drive_current_drivestraight = encoder_leftdrive.getPosition();
-    go_straight(1.2, drive_current_drivestraight);
+    // double drive_current_drivestraight = encoder_leftdrive.getPosition();
+    // go_straight(1.2, drive_current_drivestraight);
+
+
   //   double kp_spin = 0.015;
   //   double ki_spin = 0.00001;
   //   var result = frontcam.getLatestResult();
