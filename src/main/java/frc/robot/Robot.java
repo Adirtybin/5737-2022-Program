@@ -52,7 +52,7 @@ import org.photonvision.PhotonUtils;
 public class Robot extends TimedRobot {
   ShuffleboardTab NewTab = Shuffleboard.getTab("NewTab");
   private NetworkTableEntry GyroYaw = NewTab.add("GyroYaw",0).getEntry();
-  private NetworkTableEntry GyroYawF = NewTab.add("-GyroYaw",0).getEntry();
+  // private NetworkTableEntry GyroYawF = NewTab.add("-GyroYaw",0).getEntry();
   private NetworkTableEntry LimitPitch = NewTab.add("LimitPitch",false).getEntry();
   private NetworkTableEntry LimitSpin = NewTab.add("LimitSpin",false).getEntry();
   private NetworkTableEntry EncoderPitch = NewTab.add("EncoderPitch",0).getEntry();
@@ -69,10 +69,10 @@ public class Robot extends TimedRobot {
   private NetworkTableEntry LeftWheel = NewTab.add("LeftWheel",0).getEntry();
   private NetworkTableEntry RightWheel = NewTab.add("RightWheel",0).getEntry();
   // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
-  private NetworkTableEntry TargetPitch = NewTab.add("TargetPitchAngle",0).getEntry();
+  // private NetworkTableEntry TargetPitch = NewTab.add("TargetPitchAngle",0).getEntry();
   // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
   private NetworkTableEntry SetPitch = NewTab.add("SetPitch",0).getEntry();
-  private NetworkTableEntry AutonomousFinish = NewTab.add("AutoFinish",0).getEntry();
+  // private NetworkTableEntry AutonomousFinish = NewTab.add("AutoFinish",0).getEntry();
   private NetworkTableEntry TeamSelect = NewTab.add("TeamSelect",false).getEntry();
 
   private static final double Inv = 1;
@@ -401,8 +401,8 @@ public class Robot extends TimedRobot {
         setvelo = targetvelo;
       }
     
-      SmartDashboard.putNumber("TargetShooterSpeed", setvelo);
-      TargetShooterSpeed.setDouble(setvelo);
+      // SmartDashboard.putNumber("TargetShooterSpeed", setvelo);
+      // TargetShooterSpeed.setDouble(setvelo);
       return setvelo;
     }
 
@@ -454,7 +454,7 @@ public class Robot extends TimedRobot {
 		  //SmartDashboard.putNumber("targetVelocity_Units",-targetVelocity_UnitsPer100ms);
 		  //SmartDashboard.putNumber("wheel linear velocity m/s",converted_speed);
 		  SmartDashboard.putNumber("CurrentShooterSpeedUP100ms",current_velocity);
-      CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
+      // CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
 		  pre_targetvelocity_Unitsper100ms = targetVelocity_UnitsPer100ms;
   
 		  if ((-targetVelocity_UnitsPer100ms)<0.001){
@@ -487,7 +487,7 @@ public class Robot extends TimedRobot {
         cam_pitch_degree = result.getBestTarget().getPitch();
 
         SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
-        TargetPitch.setDouble(cam_pitch_degree);
+        // TargetPitch.setDouble(cam_pitch_degree);
 
     
         Integral_spin = (Integral_spin + error_spin);
@@ -773,13 +773,13 @@ public class Robot extends TimedRobot {
     while(mTimer.get()<2){
       // SmartDashboard.putNumber("AUTO_DriverDircation", -gyro.getYaw());
       // GyroYawF.setDouble(-gyro.getYaw());
-      GyroYaw.setDouble(gyro.getYaw());
+      // GyroYaw.setDouble(gyro.getYaw());
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
       go_straight(1.2, drive_current_drivestraight);
       // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
-      GyroYawF.setDouble(-gyro.getYaw());
-      LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      RightWheel.setDouble(encoder_rightdrive.getPosition());
+      // GyroYawF.setDouble(-gyro.getYaw());
+      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+      // RightWheel.setDouble(encoder_rightdrive.getPosition());
       // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
 
       auto_shoot();
@@ -812,9 +812,9 @@ public class Robot extends TimedRobot {
       // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
       // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
       // SmartDashboard.putNumber("A%UTO_drication", -gyro.getYaw());
-      GyroYawF.setDouble(-gyro.getYaw());
-      LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      RightWheel.setDouble(encoder_rightdrive.getPosition());
+      // GyroYawF.setDouble(-gyro.getYaw());
+      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+      // RightWheel.setDouble(encoder_rightdrive.getPosition());
       drive_left_1.set(auto_turn(gyro.getYaw(), 110));
       drive_right_2.set(-auto_turn(gyro.getYaw(), 110));
       
@@ -838,9 +838,9 @@ public class Robot extends TimedRobot {
       go_straight(3.2, drive_current_drivestraight);
       // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
       // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
-      GyroYawF.setDouble(-gyro.getYaw());
-      LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      RightWheel.setDouble(encoder_rightdrive.getPosition());
+      // GyroYawF.setDouble(-gyro.getYaw());
+      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+      // RightWheel.setDouble(encoder_rightdrive.getPosition());
       
       auto_shoot();
 
@@ -863,9 +863,9 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("to", auto_turn(gyro.getYaw(), -30));
       // SmartDashboard.putNumber("dir", -gyro.getYaw());
 
-      GyroYawF.setDouble(-gyro.getYaw());
-      LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      RightWheel.setDouble(encoder_rightdrive.getPosition());
+      // GyroYawF.setDouble(-gyro.getYaw());
+      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+      // RightWheel.setDouble(encoder_rightdrive.getPosition());
 
       auto_shoot();
 
@@ -885,11 +885,11 @@ public class Robot extends TimedRobot {
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
       go_straight(2.1, drive_current_drivestraight);
       // SmartDashboard.putBoolean("finish", true);
-      AutonomousFinish.setBoolean(true);
+      // AutonomousFinish.setBoolean(true);
       // SmartDashboard.putNumber("dir", -gyro.getYaw());
-      GyroYawF.setDouble(-gyro.getYaw());
-      LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      RightWheel.setDouble(encoder_rightdrive.getPosition());
+      // GyroYawF.setDouble(-gyro.getYaw());
+      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+      // RightWheel.setDouble(encoder_rightdrive.getPosition());
       auto_shoot();
       if((Math.abs(21.65*2.1-encoder_leftdrive.getPosition()))<2){
         break;
