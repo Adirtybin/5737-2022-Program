@@ -74,7 +74,8 @@ public class Robot extends TimedRobot {
   private NetworkTableEntry SetPitch = NewTab.add("SetPitch",0).getEntry();
   // private NetworkTableEntry AutonomousFinish = NewTab.add("AutoFinish",0).getEntry();
   private NetworkTableEntry TeamSelect = NewTab.add("TeamSelect",false).getEntry();
-
+  private NetworkTableEntry BallColor = NewTab.add("BallColor", get_color()).getEntry();
+  
   private static final double Inv = 1;
   Timer mTimer= new Timer();
   private Command m_autonomousCommand;
@@ -479,8 +480,6 @@ public class Robot extends TimedRobot {
       double kp_spin = 0.017;
       double ki_spin = 0.00000;
      
-
-      
       var result = frontcam.getLatestResult();
       if(result.hasTargets()){
         error_spin = result.getBestTarget().getYaw();
@@ -514,9 +513,7 @@ public class Robot extends TimedRobot {
         SetPitch.setDouble(tarpitch);
         double vertedcon_velo = cal_velo(distance, target_height_m, camera_height_m)*100/Math.PI/10.16/1.5/10*2048;
    
-    
         launcher_set(vertedcon_velo);
-    
 
       }else{
         spin_input = -0.2;
@@ -681,7 +678,7 @@ public class Robot extends TimedRobot {
     GyroYaw.setDouble(gyro.getYaw());
     CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
     TargetShooterSpeed.setDouble(setvelo);
-
+    BallColor.setString(get_color());
  }
 
   /**
@@ -977,17 +974,12 @@ public class Robot extends TimedRobot {
     }else if(!(ball_1 == get_color())){
       ball_2 = get_color();
     }
-    
-
     if(!ball_detector.get()){
       ball_1 = ball_2;
       
     }
 
     SmartDashboard.putString("color1",ball_1);
-    
-    
-
     SmartDashboard.putNumber("xspeed", get_x_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()));
     SmartDashboard.putNumber("yspeed", get_y_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()));
     SmartDashboard.putNumber("LeftMotor1Temp", drive_left_1.getMotorTemperature());
