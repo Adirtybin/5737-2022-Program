@@ -1,4 +1,9 @@
 # 5737-2022-Program  
+## 目前已知问题
+自动阶段如何判断什么时候发球？  
+自动阶段转进手动阶段时，自动程序还会自动执行。  
+自动阶段期间，循环步骤会乱.  
+
 ## 20230711 update
 ## autonomousPeriodic-自动前进与自动旋转更改
 ```java
@@ -27,3 +32,6 @@ public void robotPeriodic() {
 }
 
 ```
+
+## 20230712 update
+## auto_detect 条件修改
