@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
   private NetworkTableEntry SetPitch = NewTab.add("SetPitch",0).getEntry();
   // private NetworkTableEntry AutonomousFinish = NewTab.add("AutoFinish",0).getEntry();
   private NetworkTableEntry TeamSelect = NewTab.add("TeamSelect",false).getEntry();
-  private NetworkTableEntry BallColor = NewTab.add("BallColor", get_color()).getEntry();
+  // private NetworkTableEntry BallColor = NewTab.add("BallColor", get_color()).getEntry();
   
   private static final double Inv = 1;
   Timer mTimer= new Timer();
@@ -592,6 +592,8 @@ public class Robot extends TimedRobot {
     drive_left_2.follow(drive_left_1);
     drive_right_1.follow(drive_right_2);
 
+    
+
 
    
 
@@ -678,7 +680,7 @@ public class Robot extends TimedRobot {
     GyroYaw.setDouble(gyro.getYaw());
     CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
     TargetShooterSpeed.setDouble(setvelo);
-    BallColor.setString(get_color());
+    // BallColor.setString(get_color());
  }
 
   /**
@@ -781,8 +783,10 @@ public class Robot extends TimedRobot {
 
       auto_shoot();
 
-      if((Math.abs(21.65*1.2-encoder_leftdrive.getPosition()))<2){
-        if(auto_detect()){
+      // if((Math.abs(21.65*1-encoder_leftdrive.getPosition()))<2){
+      if(mTimer.get() > 1){
+        ///if (auto_detect()){
+        if(true){
           ball_transmitor_2.set(-0.3);
           motor_transmit_3.set(-0.75);
           try {
@@ -832,7 +836,7 @@ public class Robot extends TimedRobot {
     while(mTimer.get()<2){
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
       // SmartDashboard.putNumber("dir", -gyro.getYaw());
-      go_straight(3.2, drive_current_drivestraight);
+      go_straight(1.6, drive_current_drivestraight);
       // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
       // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
       // GyroYawF.setDouble(-gyro.getYaw());
@@ -847,9 +851,13 @@ public class Robot extends TimedRobot {
        
     }
 
+    drive_left_1.set(0);
+    drive_right_2.set(0);
+    /*
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
+    
     mTimer.reset();
     while(mTimer.get()<2){
       // double gyro.getYaw() = -gyro.getYaw();
@@ -873,7 +881,7 @@ public class Robot extends TimedRobot {
       }
       
     }
-
+    
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
@@ -903,7 +911,7 @@ public class Robot extends TimedRobot {
         
       }
     }
-    
+    */
   
   }
 
@@ -947,7 +955,6 @@ public class Robot extends TimedRobot {
   }
 
   /**
-   *
    * This function is called periodically during operator control.
    */
   @Override
