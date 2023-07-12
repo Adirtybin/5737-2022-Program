@@ -11,24 +11,17 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-
 import com.revrobotics.CANSparkMax;
-
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
-
 import java.lang.Math;
-
-
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -36,11 +29,9 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.subsystems.Pneumatic;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 /**
@@ -112,7 +103,6 @@ public class Robot extends TimedRobot {
   I2C.Port i2cPort = I2C.Port.kOnboard;
   ColorSensorV3 m_colorsensor = new ColorSensorV3(i2cPort);
   
-
   double pitch = 0;
   double enc_rever = 0;
   double previous_error = 0;
@@ -148,11 +138,8 @@ public class Robot extends TimedRobot {
   NetworkTableEntry tv = table.getEntr
   y("tv");
   NetworkTableEntry ty= table.getEntry("ty");
- */
+  */
   double spin_input = 0;
-
-  
-
 	
 	TalonFX _talon2 = new TalonFX(25);
   Joystick _joy = new Joystick(1);
@@ -160,405 +147,365 @@ public class Robot extends TimedRobot {
 	double targetVelocity_UnitsPer100ms = 0;
 	double pre_targetvelocity_Unitsper100ms = 0;
     
-    /* String for output */
+  /* String for output */
   StringBuilder _sb = new StringBuilder();
 
 	double current_velocity = 0;
     
-    /* Loop tracker for prints */
+  /* Loop tracker for prints */
 	int _loops = 0;
 
 	double converted_speed = 0;
-    
-
-    
-
-    public double color_select(String team, String color){
-      double color_spin = 0;
-      if(team == "red"){
-        if(color == "blue"){
-          color_spin = 20;
-        }
-      }else if(team == "blue"){
-        if(color == "red"){
-          color_spin = 20;;
-        }
-      }else{
-        color_spin = 0;
+  public double color_select(String team, String color){
+    double color_spin = 0;
+    if(team == "red"){
+      if(color == "blue"){
+        color_spin = 20;
       }
-      return color_spin;
+    }else if(team == "blue"){
+      if(color == "red"){
+        color_spin = 20;;
+      }
+    }else{
+      color_spin = 0;
     }
+    return color_spin;
+  }
     
-    public double spin_check(double dir_input, double current){
-      double spin = 0;
-      if(current<=-110){//-145
-        if(dir_input<0){
-          spin = 0;
-        }else{
-          spin = dir_input;
-        }
-      }
-      else if(current>= 0){//-10
-        if(dir_input>0){
-          spin = 0;
-        }else{
-          spin = dir_input;
-        }
-      }
-      else{
+  public double spin_check(double dir_input, double current){
+    double spin = 0;
+    if(current<=-110){//-145
+      if(dir_input<0){
+        spin = 0;
+      }else{
         spin = dir_input;
       }
-      return spin; 
     }
-
-    public double get_x_speed(double deg, double speedms){
-      double speedx = 0;
-      speedx = speedms * Math.cos(deg*Math.PI/180);
-      return speedx;
+    else if(current>= 0){//-10
+      if(dir_input>0){
+        spin = 0;
+      }else{
+        spin = dir_input;
+      }
     }
-    public double get_y_speed(double deg, double speedms){
-      double speedy = 0;
-      speedy = -speedms * Math.sin(deg*Math.PI/180);
-      return speedy;
+    else{
+      spin = dir_input;
     }
-    
-    public double spinenctodeg(double enc){
-      double ev = 0;
-      ev = -2 - (enc/20/10.2069*360);
-      return ev;
-    }
+    return spin; 
+  }
 
-    public double enctodeg(double canencnum){
-      double val = 0;
-      val = 90 - (-canencnum/20/19.33*360+6) ;
-    
-      return val;
-    }
-
-    public double degtoenc(double degree){
-      double aval = 0;
-
-      aval = -(((90-degree) -6)/360*19.33*20);
-
-      return aval;
-    }
-
-    public double setang(double kp, double ki, double kd, double error){
-      
-
-      
-      Integral = (Integral + error);
-      derivative = (error-previous_error);
-      output = ((error * kp)+(kd*derivative)+(ki*Integral));
-      previous_error = error;
-      
-
-      return output;
-    }
-
-
-    public double get_distance(double degree){
-      double distance=0;
-      
-      distance = PhotonUtils.calculateDistanceToTargetMeters(camera_height_m, target_height_m, install_camera_pitch_r, degree*Math.PI/180)+dis_error;
+  public double get_x_speed(double deg, double speedms){
+    double speedx = 0;
+    speedx = speedms * Math.cos(deg*Math.PI/180);
+    return speedx;
+  }
+  public double get_y_speed(double deg, double speedms){
+    double speedy = 0;
+    speedy = -speedms * Math.sin(deg*Math.PI/180);
+    return speedy;
+  }
   
-      return distance;
-    }
+  public double spinenctodeg(double enc){
+    double ev = 0;
+    ev = -2 - (enc/20/10.2069*360);
+    return ev;
+  }
 
-
-
-    public double get_distance_lime(double degree){
-      
-      double camera_angle = degree;
-      double camfgle = 29 +camera_angle;
-      double alttitude = target_height_m*100 - camera_height_m*100;
-      double tanresul = Math.tan(camfgle*Math.PI/180);
-      double dis = alttitude/tanresul;
-      double distance_lime = dis + 60;
-      double error = 0.3015*(Math.pow(Math.E,0.0087*distance_lime));
-      double final_dis = (distance + error+23.15)/100;
-      
-      return final_dis;
-    }
-
-
-    public double cal_degree(double dism, double tarhm, double camhm){
-      double ang=0;
-      
-      double x1 = dism;
-      double y1 = tarhm - camhm;
-      double x2 = dism - 0.2;
-      double y2 = y1 +0.1;
-      double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
-      double palabala_b = (y1-(x1*x1*palabala_a))/x1;
-      double vertex_x = -palabala_b/(2*palabala_a);
-      double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
-      ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
-
-      return ang;
-    }
-
-    public double cal_velo(double dism, double tarhm, double camhm){
-      double velo = 0;
-      double ang=0;
-      
-      double x1 = dism;
-      double y1 = tarhm - camhm;
-      double x2 = dism - 0.2;
-      double y2 = y1 +0.1;
-      double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
-      double palabala_b = (y1-(x1*x1*palabala_a))/x1;
-      double vertex_x = -palabala_b/(2*palabala_a);
-      double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
-      ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
-
-      double x = (vertex_x)*2;
-
-      double fenzi = x*x*9.8;
-
-      double fenmu = Math.sin(3.14/180*2*ang)*Math.cos(3.14/180*ang);
-
-      velo = Math.pow((fenzi/fenmu),(1.0/3.0))*3-0.15;
-
-
-      return velo;
-    }
-
-    public double cal_velo_move(double velocity_static, double angle_static, double yc_speed){
-      double velo_move = 0;
-      
-      
-      double yball_speed = (Math.cos(angle_static*Math.PI/180)*velocity_static)+yc_speed;
-      
-    
-      velo_move = yball_speed/Math.cos(angle_static*Math.PI/180);
-
-      return velo_move;
-    }
-
-    public double spin_correction(double dism, double tarhm, double camhm, double xspeed, double new_velo){
-      double sc = 0;
-      double time = 0;
-      double cdis = 0;
-      
-      
-      double ang=0;
-      
-      double x1 = dism;
-      double y1 = tarhm - camhm;
-      double x2 = dism - 0.2;
-      double y2 = y1 +0.1;
-      double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
-      double palabala_b = (y1-(x1*x1*palabala_a))/x1;
-      double vertex_x = -palabala_b/(2*palabala_a);
-      double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
-      ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
-
-      double x = (vertex_x)*2;
-
-      
-
-      
-
-      time = x/(new_velo*Math.cos(ang*Math.PI/180));
-      cdis = time*xspeed;
-      sc = Math.atan(cdis/dism)*180/Math.PI;
-
-
-      return sc;
-    } 
-
-    public double auto_turn(double current_angle, double target_angle){
-      target_angle = -target_angle;
-      double auto_turn_output = 0;
-      double atkp = 0.004;
-      double atki = 0.00001;
-      auto_turn_output = (target_angle - current_angle)*atkp + (target_angle - current_angle)*atki;
-      p_e = (target_angle - current_angle)+p_e;
-      return auto_turn_output;
-    }
-
-    public double auto_drivestraight(double current_encoder,double target_meter){
-      double auto_straight_out = 0;
-      double askp = 0.02;
-      auto_straight_out = ((target_meter*21.65)+current_encoder)*askp;
-      return auto_straight_out;
-    }
-
-    public double falcon500_delay(double targetvelo, double actualvelo){
-      
-
-      if((targetvelo-actualvelo)>=1000){
-        setvelo = setvelo + 75;
-      }else if((targetvelo-actualvelo)<=-1000){
-        setvelo = setvelo - 75;
-      }else if(targetvelo == 0){
-        if(Math.abs(0-actualvelo)<600){
-          setvelo = actualvelo;
-        }else{
-          setvelo = 0;
-        }
-      }else{
-        setvelo = targetvelo;
-      }
-    
-      // SmartDashboard.putNumber("TargetShooterSpeed", setvelo);
-      // TargetShooterSpeed.setDouble(setvelo);
-      return setvelo;
-    }
-
-    public void launcher_set(double setv){
-      double motorOutput = _talon.getMotorOutputPercent();
-		
-		
-		  _sb.append("\tout:");
-		  /* Cast to int to remove decimal places */
-		  _sb.append((int) (motorOutput * 100));
-		  _sb.append("%");	// Percent
-
-		  _sb.append("\tspd:");
-		  _sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
-		  _sb.append("u"); 	// Native units
-
-    
-			
-		  targetVelocity_UnitsPer100ms = -setv;
-      if (setv == 0){
-        _talon.set(TalonFXControlMode.Velocity, -falcon500_delay(0, -_talon.getSelectedSensorVelocity()));
-      }else{
-      					/* 500 RPM in either direction */
-		    _talon.set(TalonFXControlMode.Velocity, -falcon500_delay(-targetVelocity_UnitsPer100ms, -_talon.getSelectedSensorVelocity()));
-        
-					/* Append more signals to print when in speed mode. */
-		    _sb.append("\terr:");
-		    _sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
-		    _sb.append("\ttrg:");
-				
-		    _sb.append(targetVelocity_UnitsPer100ms);
-				
-				
-			
-			
-		
-
-        /* Print built string every 10 loops */
-		    if (++_loops >= 10) {
-			    _loops = 0;
-			    System.out.println(_sb.toString());
-        }
-        /* Reset built string */
-		    _sb.setLength(0);
-      }
-
-		  current_velocity = -_talon.getSelectedSensorVelocity();
-		  converted_speed = current_velocity/2048*10*1.5*10.16*Math.PI/100;
-		  //SmartDashboard.putNumber("targetVelocity_Units",-targetVelocity_UnitsPer100ms);
-		  //SmartDashboard.putNumber("wheel linear velocity m/s",converted_speed);
-		  SmartDashboard.putNumber("CurrentShooterSpeedUP100ms",current_velocity);
-      // CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
-		  pre_targetvelocity_Unitsper100ms = targetVelocity_UnitsPer100ms;
+  public double enctodeg(double canencnum){
+    double val = 0;
+    val = 90 - (-canencnum/20/19.33*360+6) ;
   
-		  if ((-targetVelocity_UnitsPer100ms)<0.001){
-			  targetVelocity_UnitsPer100ms = 0;
-		  }
-    }
+    return val;
+  }
 
-    public double get_drive_speed(){
-      double speed_d =  encoder_leftdrive.getVelocity()/10.71*0.152*Math.PI/60;
-      return speed_d;
-    }
+  public double degtoenc(double degree){
+    double aval = 0;
 
-    public void go_straight(double meters,double enc){
-      
-      drive_left_1.set(auto_drivestraight(-enc, -meters));
-      drive_right_2.set(auto_drivestraight(-enc, -meters));
-    }
+    aval = -(((90-degree) -6)/360*19.33*20);
 
-    public void auto_shoot(){
-      motor_spin.set(spin_check(spin_input, encoder_spin.getPosition()));
+    return aval;
+  }
 
-      double kp_spin = 0.017;
-      double ki_spin = 0.00000;
-     
-      var result = frontcam.getLatestResult();
-      if(result.hasTargets()){
-        error_spin = result.getBestTarget().getYaw();
-        cam_pitch_degree = result.getBestTarget().getPitch();
-
-        SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
-        // TargetPitch.setDouble(cam_pitch_degree);
-
+  public double setang(double kp, double ki, double kd, double error){     
+    Integral = (Integral + error);
+    derivative = (error-previous_error);
+    output = ((error * kp)+(kd*derivative)+(ki*Integral));
+    previous_error = error;
     
-        Integral_spin = (Integral_spin + error_spin);
-      
-        spin_input = (error_spin * kp_spin)+(ki_spin*Integral);
-        previous_error_spin = error_spin;
+    return output;
+  }
 
-        distance = get_distance(cam_pitch_degree);
-     
-        tarpitch = cal_degree(distance, target_height_m, camera_height_m);
-        System.out.println(tarpitch);
-        if (tarpitch<45){
-          motor_pitch.set(0);
-        }else if(tarpitch>80){
-          motor_pitch.set(0);
-        }else{
-          motor_pitch.set(setang(0.01, 0.000015, 0, degtoenc(tarpitch)-encoder_pitch.getPosition()));
-        }
-      
-        // SmartDashboard.putNumber("PitchAngle_Unit", encoder_pitch.getPosition());
-        // SmartDashboard.putNumber("PitchDeg", spinenctodeg(encoder_pitch.getPosition()));
-        PitchAngle_Degree.setDouble(spinenctodeg(encoder_pitch.getPosition()));
-        // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
-        SetPitch.setDouble(tarpitch);
-        double vertedcon_velo = cal_velo(distance, target_height_m, camera_height_m)*100/Math.PI/10.16/1.5/10*2048;
-   
-        launcher_set(vertedcon_velo);
-
-      }else{
-        spin_input = -0.2;
-      }
-
-    }
-
-    public Boolean auto_detect(){
-      Boolean autoshoot = false;
-
-      if(Math.abs(degtoenc(tarpitch)-encoder_pitch.getPosition())<3){
-        if(-targetVelocity_UnitsPer100ms >= -_talon.getSelectedSensorVelocity()){
-          autoshoot = true;
-        }
-      }
-
-      return autoshoot;
-    }
-
-    public String get_color(){
-
-      /*
-      Color kBlueTarget = new Color(0.15, 0.4, 0.44);
-  Color kRedTarget = new Color(0.561, 0.232, 0.114);
-  Color kEmptyTarget = new Color(0.25, 0.49, 0.26);
-      */
-      String co = "";
-      Color detectedColor = m_colorsensor.getColor();
-      double R = detectedColor.red;
-      double G = detectedColor.green;
-      double B = detectedColor.blue;
-
-      if ((Math.abs(0.15-R)<0.1)&&(Math.abs(0.4-G)<0.1)&&(Math.abs(0.44-B)<0.1)){
-        co = "blue";
-      }else if ((Math.abs(0.53-R)<0.2)&&(Math.abs(0.34-G)<0.2)&&(Math.abs(0.118-B)<0.2)){
-        co = "red";
-      }else if ((Math.abs(0.25-R)<0.1)&&(Math.abs(0.49-G)<0.1)&&(Math.abs(0.26-B)<0.1)){
-        co = "empty";
-      }else{
-        co = "empty";
-      }
-      return co;
-    }
-
+  public double get_distance(double degree){
+    double distance=0;
     
+    distance = PhotonUtils.calculateDistanceToTargetMeters(camera_height_m, target_height_m, install_camera_pitch_r, degree*Math.PI/180)+dis_error;
+
+    return distance;
+  }
+
+  public double get_distance_lime(double degree){     
+    double camera_angle = degree;
+    double camfgle = 29 +camera_angle;
+    double alttitude = target_height_m*100 - camera_height_m*100;
+    double tanresul = Math.tan(camfgle*Math.PI/180);
+    double dis = alttitude/tanresul;
+    double distance_lime = dis + 60;
+    double error = 0.3015*(Math.pow(Math.E,0.0087*distance_lime));
+    double final_dis = (distance + error+23.15)/100;
+    
+    return final_dis;
+  }
+
+
+  public double cal_degree(double dism, double tarhm, double camhm){
+    double ang=0;
+    
+    double x1 = dism;
+    double y1 = tarhm - camhm;
+    double x2 = dism - 0.2;
+    double y2 = y1 +0.1;
+    double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
+    double palabala_b = (y1-(x1*x1*palabala_a))/x1;
+    double vertex_x = -palabala_b/(2*palabala_a);
+    double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
+    ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
+
+    return ang;
+  }
+
+  public double cal_velo(double dism, double tarhm, double camhm){
+    double velo = 0;
+    double ang=0;
+    
+    double x1 = dism;
+    double y1 = tarhm - camhm;
+    double x2 = dism - 0.2;
+    double y2 = y1 +0.1;
+    double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
+    double palabala_b = (y1-(x1*x1*palabala_a))/x1;
+    double vertex_x = -palabala_b/(2*palabala_a);
+    double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
+    ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
+    double x = (vertex_x)*2;
+    double fenzi = x*x*9.8;
+    double fenmu = Math.sin(3.14/180*2*ang)*Math.cos(3.14/180*ang);
+    velo = Math.pow((fenzi/fenmu),(1.0/3.0))*3-0.15;
+
+    return velo;
+  }
+
+  public double cal_velo_move(double velocity_static, double angle_static, double yc_speed){
+    double velo_move = 0;
+
+    double yball_speed = (Math.cos(angle_static*Math.PI/180)*velocity_static)+yc_speed;
+    velo_move = yball_speed/Math.cos(angle_static*Math.PI/180);
+
+    return velo_move;
+  }
+
+  public double spin_correction(double dism, double tarhm, double camhm, double xspeed, double new_velo){
+    double sc = 0;
+    double time = 0;
+    double cdis = 0;
+    double ang=0;
+    
+    double x1 = dism;
+    double y1 = tarhm - camhm;
+    double x2 = dism - 0.2;
+    double y2 = y1 +0.1;
+    double palabala_a = ((y1*x2/x1)-y2)/((x1*x2)-(x2*x2));
+    double palabala_b = (y1-(x1*x1*palabala_a))/x1;
+    double vertex_x = -palabala_b/(2*palabala_a);
+    double vertex_y = (-palabala_b*palabala_b)/(4*palabala_a);
+    ang = (Math.atan((2*vertex_y)/vertex_x))*180/3.14;
+
+    double x = (vertex_x)*2;
+
+    time = x/(new_velo*Math.cos(ang*Math.PI/180));
+    cdis = time*xspeed;
+    sc = Math.atan(cdis/dism)*180/Math.PI;
+
+    return sc;
+  } 
+
+  public double auto_turn(double current_angle, double target_angle){
+    target_angle = -target_angle;
+    double auto_turn_output = 0;
+    double atkp = 0.004;
+    double atki = 0.00001;
+
+    auto_turn_output = (target_angle - current_angle)*atkp + (target_angle - current_angle)*atki;
+    p_e = (target_angle - current_angle)+p_e;
+
+    return auto_turn_output;
+  }
+
+  public double auto_drivestraight(double current_encoder,double target_meter){
+    double auto_straight_out = 0;
+    double askp = 0.02;
+
+    auto_straight_out = ((target_meter*21.65)+current_encoder)*askp;
+
+    return auto_straight_out;
+  }
+
+  public double falcon500_delay(double targetvelo, double actualvelo){
+    if((targetvelo-actualvelo)>=1000){
+      setvelo = setvelo + 75;
+    }else if((targetvelo-actualvelo)<=-1000){
+      setvelo = setvelo - 75;
+    }else if(targetvelo == 0){
+      if(Math.abs(0-actualvelo)<600){
+        setvelo = actualvelo;
+      }else{
+        setvelo = 0;
+      }
+    }else{
+      setvelo = targetvelo;
+    }
+  
+    // SmartDashboard.putNumber("TargetShooterSpeed", setvelo);
+    // TargetShooterSpeed.setDouble(setvelo);
+    return setvelo;
+  }
+
+  public void launcher_set(double setv){
+    double motorOutput = _talon.getMotorOutputPercent();
+  
+    _sb.append("\tout:");
+    /* Cast to int to remove decimal places */
+    _sb.append((int) (motorOutput * 100));
+    _sb.append("%");	// Percent
+
+    _sb.append("\tspd:");
+    _sb.append(_talon.getSelectedSensorVelocity(Constants.kPIDLoopIdx));
+    _sb.append("u"); 	// Native units
+
+    targetVelocity_UnitsPer100ms = -setv;
+    if (setv == 0){
+      _talon.set(TalonFXControlMode.Velocity, -falcon500_delay(0, -_talon.getSelectedSensorVelocity()));
+    }else{
+      /* 500 RPM in either direction */
+      _talon.set(TalonFXControlMode.Velocity, -falcon500_delay(-targetVelocity_UnitsPer100ms, -_talon.getSelectedSensorVelocity()));
+      
+        /* Append more signals to print when in speed mode. */
+      _sb.append("\terr:");
+      _sb.append(_talon.getClosedLoopError(Constants.kPIDLoopIdx));
+      _sb.append("\ttrg:");
+      _sb.append(targetVelocity_UnitsPer100ms);
+      
+      /* Print built string every 10 loops */
+      if (++_loops >= 10) {
+        _loops = 0;
+        System.out.println(_sb.toString());
+      }
+      /* Reset built string */
+      _sb.setLength(0);
+    }
+
+    current_velocity = -_talon.getSelectedSensorVelocity();
+    converted_speed = current_velocity/2048*10*1.5*10.16*Math.PI/100;
+    //SmartDashboard.putNumber("targetVelocity_Units",-targetVelocity_UnitsPer100ms);
+    //SmartDashboard.putNumber("wheel linear velocity m/s",converted_speed);
+    SmartDashboard.putNumber("CurrentShooterSpeedUP100ms",current_velocity);
+    // CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
+    pre_targetvelocity_Unitsper100ms = targetVelocity_UnitsPer100ms;
+
+    if ((-targetVelocity_UnitsPer100ms)<0.001){
+      targetVelocity_UnitsPer100ms = 0;
+    }
+  }
+
+  public double get_drive_speed(){
+    double speed_d = encoder_leftdrive.getVelocity()/10.71*0.152*Math.PI/60;
+
+    return speed_d;
+  }
+
+  public void go_straight(double meters,double enc){
+    drive_left_1.set(auto_drivestraight(-enc, -meters));
+    drive_right_2.set(auto_drivestraight(-enc, -meters));
+  }
+
+  public void auto_shoot(){
+    motor_spin.set(spin_check(spin_input, encoder_spin.getPosition()));
+
+    double kp_spin = 0.017;
+    double ki_spin = 0.00000;
+    
+    var result = frontcam.getLatestResult();
+    if(result.hasTargets()){
+      error_spin = result.getBestTarget().getYaw();
+      cam_pitch_degree = result.getBestTarget().getPitch();
+
+      // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
+      // TargetPitch.setDouble(cam_pitch_degree);
+      Integral_spin = (Integral_spin + error_spin);
+    
+
+      spin_input = (error_spin * kp_spin)+(ki_spin*Integral);
+      previous_error_spin = error_spin;
+
+      distance = get_distance(cam_pitch_degree);
+    
+      tarpitch = cal_degree(distance, target_height_m, camera_height_m);
+      // System.out.println(tarpitch);
+      if (tarpitch<45){
+        motor_pitch.set(0);
+      }else if(tarpitch>80){
+        motor_pitch.set(0);
+      }else{
+        motor_pitch.set(setang(0.01, 0.000015, 0, degtoenc(tarpitch)-encoder_pitch.getPosition()));
+      }
+    
+      // SmartDashboard.putNumber("PitchAngle_Unit", encoder_pitch.getPosition());
+      // SmartDashboard.putNumber("PitchDeg", spinenctodeg(encoder_pitch.getPosition()));
+      PitchAngle_Degree.setDouble(spinenctodeg(encoder_pitch.getPosition()));
+      // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
+      SetPitch.setDouble(tarpitch);
+      double vertedcon_velo = cal_velo(distance, target_height_m, camera_height_m)*100/Math.PI/10.16/1.5/10*2048;
+  
+      launcher_set(vertedcon_velo);
+
+    }else{
+      spin_input = -0.2;
+    }
+  }
+
+  public Boolean auto_detect(){
+    Boolean autoshoot = false;
+
+    if(Math.abs(degtoenc(tarpitch)-encoder_pitch.getPosition())<3){
+      if(-targetVelocity_UnitsPer100ms >= -_talon.getSelectedSensorVelocity()){
+        autoshoot = true;
+      }
+    }
+    return autoshoot;
+  }
+
+  public String get_color(){
+    /*
+    Color kBlueTarget = new Color(0.15, 0.4, 0.44);
+    Color kRedTarget = new Color(0.561, 0.232, 0.114);
+    Color kEmptyTarget = new Color(0.25, 0.49, 0.26);
+    */
+    String co = "";
+    Color detectedColor = m_colorsensor.getColor();
+    double R = detectedColor.red;
+    double G = detectedColor.green;
+    double B = detectedColor.blue;
+
+    if ((Math.abs(0.15-R)<0.1)&&(Math.abs(0.4-G)<0.1)&&(Math.abs(0.44-B)<0.1)){
+      co = "blue";
+    }else if ((Math.abs(0.53-R)<0.2)&&(Math.abs(0.34-G)<0.2)&&(Math.abs(0.118-B)<0.2)){
+      co = "red";
+    }else if ((Math.abs(0.25-R)<0.1)&&(Math.abs(0.49-G)<0.1)&&(Math.abs(0.26-B)<0.1)){
+      co = "empty";
+    }else{
+      co = "empty";
+    }
+    return co;
+  }
 
   @Override
   public void robotInit() {
@@ -588,21 +535,14 @@ public class Robot extends TimedRobot {
     drive_right_1.setIdleMode(IdleMode.kBrake);
     drive_right_2.setIdleMode(IdleMode.kBrake);
 
-
     drive_left_2.follow(drive_left_1);
     drive_right_1.follow(drive_right_2);
-
-    
-
-
-   
 
     // drive_left_1.restoreFactoryDefaults();
     // drive_left_2.restoreFactoryDefaults();
     // drive_right_1.restoreFactoryDefaults();
     // drive_right_2.restoreFactoryDefaults();
 
-    
     /* Factory Default all hardware to prevent unexpected behaviour */
 		_talon.configFactoryDefault();
 		_talon2.configFactoryDefault();
@@ -611,7 +551,7 @@ public class Robot extends TimedRobot {
 		_talon.configNeutralDeadband(0.001);
 		_talon2.configNeutralDeadband(0.001);
 
-
+    /* Config motor inverted */
 		_talon.setInverted(TalonFXInvertType.Clockwise); // !< Update this
     _talon2.setInverted(TalonFXInvertType.CounterClockwise); // !< Update this
 
@@ -623,7 +563,6 @@ public class Robot extends TimedRobot {
                                         Constants.kPIDLoopIdx, 
 											                  Constants.kTimeoutMs);
 											
-
 		/* Config the peak and nominal outputs */
 		_talon.configNominalOutputForward(0, Constants.kTimeoutMs);
 		_talon.configNominalOutputReverse(0, Constants.kTimeoutMs);
@@ -642,16 +581,11 @@ public class Robot extends TimedRobot {
 		 * 
 		 * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
 		 */
-        // _talon.setSensorPhase(true);
+    // _talon.setSensorPhase(true);
 		//_talon2.follow(_talon);      
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    
-    
-  
-  
 
-   
   }
   
   @Override
@@ -661,15 +595,15 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     
-  //   SmartDashboard.putNumber("GyroYaw", gyro.getYaw());
-  //   SmartDashboard.putNumber("DrivePosition", encoder_leftdrive.getPosition());
-  //   SmartDashboard.putBoolean("LimitPitch", limitsw.get());
-  //   SmartDashboard.putBoolean("LimitSpin", limitsw2.get());
-  //   SmartDashboard.putNumber("EncoderPitch", encoder_pitch.getPosition());
-  //   SmartDashboard.putNumber("EncoderSpin", encoder_spin.getPosition());
-  //   SmartDashboard.putNumber("TargetDistance", distance);
-  //   SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
-  //   SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
+    // SmartDashboard.putNumber("GyroYaw", gyro.getYaw());
+    // SmartDashboard.putNumber("DrivePosition", encoder_leftdrive.getPosition());
+    // SmartDashboard.putBoolean("LimitPitch", limitsw.get());
+    // SmartDashboard.putBoolean("LimitSpin", limitsw2.get());
+    // SmartDashboard.putNumber("EncoderPitch", encoder_pitch.getPosition());
+    // SmartDashboard.putNumber("EncoderSpin", encoder_spin.getPosition());
+    // SmartDashboard.putNumber("TargetDistance", distance);
+    // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
+    // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
     LeftWheel.setDouble(encoder_leftdrive.getPosition());
     RightWheel.setDouble(encoder_rightdrive.getPosition());
     LimitPitch.setBoolean(limitsw.get());
@@ -700,13 +634,14 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    mTimer.start();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
 
     _talon.set(TalonFXControlMode.PercentOutput, 0);
+
+    mTimer.start();
     mTimer.reset();
     while(mTimer.get()<2){
       if (!limitsw.get()){
@@ -734,29 +669,18 @@ public class Robot extends TimedRobot {
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
     _talon.set(TalonFXControlMode.PercentOutput, 0);
-    ball_collector.set(0);
-    
-
-
-    
-    // schedule the autonomous command (example)
-  
+    ball_collector.set(0); 
   }
 
   /**
    * This function is called periodically during autonomous.
    */
- 
-
-  
-
   @Override
   public void autonomousPeriodic() {
   
     m_pneumatic.intakeDown();
 
     ball_collector.set(0.5);
-    
     
     ball_transmitor_1.set(-0.7*Inv);
     // SmartDashboard.putNumber("AUTO_DriverDircation", -gyro.getYaw());
@@ -800,7 +724,6 @@ public class Robot extends TimedRobot {
       } 
     }
 
-    
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
     gyro.setYaw(0);
@@ -853,6 +776,8 @@ public class Robot extends TimedRobot {
 
     drive_left_1.set(0);
     drive_right_2.set(0);
+
+    endCompetition();
     /*
     encoder_leftdrive.setPosition(0);
     encoder_rightdrive.setPosition(0);
