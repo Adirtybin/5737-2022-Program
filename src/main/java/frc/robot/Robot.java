@@ -344,7 +344,7 @@ public class Robot extends TimedRobot {
     double auto_straight_out = 0;
     double askp = 0.02;
 
-    auto_straight_out = ((target_meter*21.65)+current_encoder)*askp;
+    auto_straight_out = ((target_meter*22.428)+current_encoder)*askp;
 
     return auto_straight_out;
   }
@@ -441,7 +441,6 @@ public class Robot extends TimedRobot {
       // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
       // TargetPitch.setDouble(cam_pitch_degree);
       Integral_spin = (Integral_spin + error_spin);
-    
 
       spin_input = (error_spin * kp_spin)+(ki_spin*Integral);
       previous_error_spin = error_spin;
@@ -475,8 +474,8 @@ public class Robot extends TimedRobot {
   public Boolean auto_detect(){
     Boolean autoshoot = false;
 
-    if(Math.abs(degtoenc(tarpitch)-encoder_pitch.getPosition())<3){
-      if(-targetVelocity_UnitsPer100ms >= -_talon.getSelectedSensorVelocity()){
+    if((degtoenc(tarpitch)-encoder_pitch.getPosition())<3){
+      if(Math.abs(-targetVelocity_UnitsPer100ms) >= Math.abs(-_talon.getSelectedSensorVelocity())){
         autoshoot = true;
       }
     }
@@ -690,154 +689,167 @@ public class Robot extends TimedRobot {
     gyro.setYaw(0);
     
     mTimer.reset();
+    
     /**
      * goto 1st ball and shooter 2 balls.
      */
+    //while(true){
     while(mTimer.get()<2){
       // SmartDashboard.putNumber("AUTO_DriverDircation", -gyro.getYaw());
       // GyroYawF.setDouble(-gyro.getYaw());
       // GyroYaw.setDouble(gyro.getYaw());
       double drive_current_drivestraight = encoder_leftdrive.getPosition();
-      go_straight(1.2, drive_current_drivestraight);
+      go_straight(1, drive_current_drivestraight);
       // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
       // GyroYawF.setDouble(-gyro.getYaw());
       // LeftWheel.setDouble(encoder_leftdrive.getPosition());
       // RightWheel.setDouble(encoder_rightdrive.getPosition());
-      // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
+      SmartDashboard.putNumber("11111", 22.428-encoder_leftdrive.getPosition());
 
-      auto_shoot();
+      
 
       // if((Math.abs(21.65*1-encoder_leftdrive.getPosition()))<2){
-      if(mTimer.get() > 1){
-        ///if (auto_detect()){
-        if(true){
-          ball_transmitor_2.set(-0.3);
-          motor_transmit_3.set(-0.75);
-          try {
-            Thread.sleep( 2000 );
-          } catch (Exception e){
-          }
-          ball_transmitor_2.set(0);
-          motor_transmit_3.set(0);
-          break; 
+      //if(mTimer.get() > 1){
+        //if (){
+        while(auto_detect()){
+          auto_shoot();
         }
-      } 
-    }
-
-    encoder_leftdrive.setPosition(0);
-    encoder_rightdrive.setPosition(0);
-    gyro.setYaw(0);
-    /**
-     * turn right and shoot
-     */
-    mTimer.reset();
-    while(mTimer.get()<2){
-      // double gyro.getYaw() = -gyro.getYaw();
-      // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
-      // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
-      // SmartDashboard.putNumber("A%UTO_drication", -gyro.getYaw());
-      // GyroYawF.setDouble(-gyro.getYaw());
-      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      // RightWheel.setDouble(encoder_rightdrive.getPosition());
-      drive_left_1.set(auto_turn(gyro.getYaw(), 110));
-      drive_right_2.set(-auto_turn(gyro.getYaw(), 110));
       
-      auto_shoot();
-
-      if((Math.abs(110-gyro.getYaw()))<5){
-        break;
-      }
-    }
-      
-    encoder_leftdrive.setPosition(0);
-    encoder_rightdrive.setPosition(0);
-    gyro.setYaw(0);
-    /**
-     * goto 3rd ball and shoot.
-     */
-    mTimer.reset();
-    while(mTimer.get()<2){
-      double drive_current_drivestraight = encoder_leftdrive.getPosition();
-      // SmartDashboard.putNumber("dir", -gyro.getYaw());
-      go_straight(1.6, drive_current_drivestraight);
-      // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
-      // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
-      // GyroYawF.setDouble(-gyro.getYaw());
-      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      // RightWheel.setDouble(encoder_rightdrive.getPosition());
-      
-      auto_shoot();
-
-      if((Math.abs(21.65*3.2-encoder_leftdrive.getPosition()))<2){
-        break;
-      } 
-       
-    }
-
-    drive_left_1.set(0);
-    drive_right_2.set(0);
-
-    endCompetition();
-    /*
-    encoder_leftdrive.setPosition(0);
-    encoder_rightdrive.setPosition(0);
-    gyro.setYaw(0);
-    
-    mTimer.reset();
-    while(mTimer.get()<2){
-      // double gyro.getYaw() = -gyro.getYaw();
-      // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
-      // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
-      drive_left_1.set(auto_turn(gyro.getYaw(), 30));
-      drive_right_2.set(-auto_turn(gyro.getYaw(), 30));
-      SmartDashboard.putNumber("to", auto_turn(gyro.getYaw(), -30));
-      // SmartDashboard.putNumber("dir", -gyro.getYaw());
-
-      // GyroYawF.setDouble(-gyro.getYaw());
-      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      // RightWheel.setDouble(encoder_rightdrive.getPosition());
-
-      auto_shoot();
-
-      if((Math.abs(-10-gyro.getYaw()))<5){
-        
-        break;
-        
-      }
-      
-    }
-    
-    encoder_leftdrive.setPosition(0);
-    encoder_rightdrive.setPosition(0);
-    gyro.setYaw(0);
-    mTimer.reset();
-    while(mTimer.get()<2){
-      double drive_current_drivestraight = encoder_leftdrive.getPosition();
-      go_straight(2.1, drive_current_drivestraight);
-      // SmartDashboard.putBoolean("finish", true);
-      // AutonomousFinish.setBoolean(true);
-      // SmartDashboard.putNumber("dir", -gyro.getYaw());
-      // GyroYawF.setDouble(-gyro.getYaw());
-      // LeftWheel.setDouble(encoder_leftdrive.getPosition());
-      // RightWheel.setDouble(encoder_rightdrive.getPosition());
-      auto_shoot();
-      if((Math.abs(21.65*2.1-encoder_leftdrive.getPosition()))<2){
-        break;
-      } 
-    }
-    mTimer.reset();
-    while(mTimer.get()<2){
-      drive_left_1.set(0);
-      drive_right_2.set(0);
-      auto_shoot();
-      if(auto_detect()){
         ball_transmitor_2.set(-0.3);
         motor_transmit_3.set(-0.75);
         
-      }
+        try{
+          Thread.sleep(2000);
+        }catch(Exception E){
+
+        }
+        
+        ball_transmitor_2.set(0);
+        motor_transmit_3.set(0);
+        
+        
+      
     }
-    */
-  
+
+    
+    // encoder_leftdrive.setPosition(0);
+    // encoder_rightdrive.setPosition(0);
+    // gyro.setYaw(0);
+    // /**
+    //  * turn right and shoot
+    //  */
+    // mTimer.reset();
+    // //while(true){
+    // while(mTimer.get()<2){
+    //   // double gyro.getYaw() = -gyro.getYaw();
+    //   // SmartDashboard.putNumber("AUTO_leftwheel", encoder_leftdrive.getPosition());
+    //   // SmartDashboard.putNumber("AUTO_rightwheel", encoder_rightdrive.getPosition());
+    //   // SmartDashboard.putNumber("A%UTO_drication", -gyro.getYaw());
+    //   // GyroYawF.setDouble(-gyro.getYaw());
+    //   // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+    //   // RightWheel.setDouble(encoder_rightdrive.getPosition());
+    //   drive_left_1.set(auto_turn(gyro.getYaw(), 110));
+    //   drive_right_2.set(-auto_turn(gyro.getYaw(), 110));
+      
+    //   auto_shoot();
+
+    //   if((Math.abs(110-gyro.getYaw()))<5){
+    //     break;
+    //   }
+    // }
+      
+    // encoder_leftdrive.setPosition(0);
+    // encoder_rightdrive.setPosition(0);
+    // gyro.setYaw(0);
+    // /**
+    //  * goto 3rd ball and shoot.
+    //  */
+    // mTimer.reset();
+    // //while(true){
+    // while(mTimer.get()<2){
+    //   double drive_current_drivestraight = encoder_leftdrive.getPosition();
+    //   // SmartDashboard.putNumber("dir", -gyro.getYaw());
+    //   go_straight(3.2, drive_current_drivestraight);
+    //   // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
+    //   // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
+    //   // GyroYawF.setDouble(-gyro.getYaw());
+    //   // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+    //   // RightWheel.setDouble(encoder_rightdrive.getPosition());
+      
+    //   auto_shoot();
+    //   // 21.65*3.2 to encoder
+    //   if((Math.abs(21.65*3.2-encoder_leftdrive.getPosition()))<2){
+    //     break;
+    //   } 
+       
+    // }
+
+    // drive_left_1.set(0);
+    // drive_right_2.set(0);
+
+    
+    
+    // encoder_leftdrive.setPosition(0);
+    // encoder_rightdrive.setPosition(0);
+    // gyro.setYaw(0);
+    
+    // mTimer.reset();
+    // //while(true){
+    // while(mTimer.get()<2){
+    //   // double gyro.getYaw() = -gyro.getYaw();
+    //   // SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
+    //   // SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
+    //   drive_left_1.set(auto_turn(gyro.getYaw(), 30));
+    //   drive_right_2.set(-auto_turn(gyro.getYaw(), 30));
+    //   SmartDashboard.putNumber("to", auto_turn(gyro.getYaw(), -30));
+    //   // SmartDashboard.putNumber("dir", -gyro.getYaw());
+
+    //   // GyroYawF.setDouble(-gyro.getYaw());
+    //   // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+    //   // RightWheel.setDouble(encoder_rightdrive.getPosition());
+
+    //   auto_shoot();
+
+    //   if((Math.abs(-10-gyro.getYaw()))<5){
+        
+    //     break;
+        
+    //   }
+      
+    // }
+    
+    // encoder_leftdrive.setPosition(0);
+    // encoder_rightdrive.setPosition(0);
+    // gyro.setYaw(0);
+    // mTimer.reset();
+    // //while(true){
+    // while(mTimer.get()<2){
+    //   double drive_current_drivestraight = encoder_leftdrive.getPosition();
+    //   go_straight(2.1, drive_current_drivestraight);
+    //   // SmartDashboard.putBoolean("finish", true);
+    //   // AutonomousFinish.setBoolean(true);
+    //   // SmartDashboard.putNumber("dir", -gyro.getYaw());
+    //   // GyroYawF.setDouble(-gyro.getYaw());
+    //   // LeftWheel.setDouble(encoder_leftdrive.getPosition());
+    //   // RightWheel.setDouble(encoder_rightdrive.getPosition());
+    //   auto_shoot();
+    //   if((Math.abs(21.65*2.1-encoder_leftdrive.getPosition()))<2){
+    //     break;
+    //   } 
+    // }
+    // mTimer.reset();
+    // //while(true){
+    // while(mTimer.get()<2){
+    //   drive_left_1.set(0);
+    //   drive_right_2.set(0);
+    //   auto_shoot();
+    //   if(auto_detect()){
+    //     ball_transmitor_2.set(-0.3);
+    //     motor_transmit_3.set(-0.75);
+        
+    //   }
+    // }
+      
   }
 
   @Override
@@ -916,7 +928,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("yspeed", get_y_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()));
     SmartDashboard.putNumber("LeftMotor1Temp", drive_left_1.getMotorTemperature());
     SmartDashboard.putNumber("LeftMotor2Temp", drive_left_2.getMotorTemperature());
-    SmartDashboard.putNumber("SpinDeg", spinenctodeg(encoder_spin.getPosition()));
+    SmartDashboard.putBoolean("ats", auto_detect());
     
     
     double straight_velo = xbox.getRawAxis(1)*0.8;
@@ -981,18 +993,11 @@ public class Robot extends TimedRobot {
     }
 
     
-
     if (xbox.getRawButton(5)){
       m_pneumatic.intakeDown();
-    
-    }else if(xbox.getRawButton(6)){
-      
+    }else if(xbox.getRawButton(6)){ 
       m_pneumatic.intakeUp();
- 
     }
-
-
-    
 
     if(xbox.getRawAxis(3)>=0.1){
       ball_transmitor_1.set(-0.8*Inv);
@@ -1032,14 +1037,11 @@ public class Robot extends TimedRobot {
     if (_joy.getRawButton(2)){
       double kp_spin = 0.02;
       double ki_spin = 0.0000;
-      
-    
-      
+ 
       var result = frontcam.getLatestResult();
       if(result.hasTargets()){
         error_spin_get = result.getBestTarget().getYaw();
         cam_pitch_degree = result.getBestTarget().getPitch();
-
 
       }else{
         
@@ -1050,9 +1052,7 @@ public class Robot extends TimedRobot {
         }else{
           error_spin = error_spin_get+color_select(team, ball_1);
         }
-    
       
-        
         //motor_spin.set(spin_check(spin_input, encoder_spin.getPosition()));
       
 
@@ -1074,21 +1074,15 @@ public class Robot extends TimedRobot {
           motor_pitch.set(setang(0.01, 0.000015, 0, degtoenc(tarpitch)-encoder_pitch.getPosition()));
         }
       
-     
-
-
-      
         double vertedcon_velo = cal_velo_move(cal_velo(distance, target_height_m, camera_height_m),tarpitch,-get_y_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()))*100/Math.PI/10.16/1.5/10*2048;
         SmartDashboard.putNumber("oriv", vertedcon_velo);
         
-        SmartDashboard.putBoolean("atuos", auto_detect());
+        
         SmartDashboard.putNumber("nv", cal_velo_move(cal_velo(distance, target_height_m, camera_height_m),tarpitch,-get_y_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()))*100/Math.PI/10.16/1.5/10*2048);
         SmartDashboard.putNumber("spe",spin_correction(distance, target_height_m, camera_height_m, get_x_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()),cal_velo_move(cal_velo(distance, target_height_m, camera_height_m),tarpitch,-get_y_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed()))));
         
         //SmartDashboard.putNumber("spincor",spin_correction(distance, target_height_m, camera_height_m, get_x_speed(spinenctodeg(encoder_spin.getPosition()), get_drive_speed())));
         launcher_set(vertedcon_velo);
-    
-        
 
     }else if(_joy.getRawButton(11)){
       _talon.set(TalonFXControlMode.PercentOutput,_joy.getRawAxis(1));
@@ -1105,9 +1099,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
-    gyro.setYaw(0);
-    encoder_leftdrive.setPosition(0);
-    encoder_rightdrive.setPosition(0);
+    // gyro.setYaw(0);
+    // encoder_leftdrive.setPosition(0);
+    // encoder_rightdrive.setPosition(0);
     // Cancels all running commands at the start of test mode.
     
   
@@ -1138,8 +1132,8 @@ public class Robot extends TimedRobot {
     // double gyro.getYaw() = -gyro.getYaw();
     // drive_left_1.set(auto_turn(gyro.getYaw(), -110));
     // drive_right_2.set(-auto_turn(gyro.getYaw(), -110));
-    drive_left_1.set(auto_turn(gyro.getYaw(), -30));
-    drive_right_2.set(-auto_turn(gyro.getYaw(), -30));
+    // drive_left_1.set(auto_turn(gyro.getYaw(), -30));
+    // drive_right_2.set(-auto_turn(gyro.getYaw(), -30));
 
     // double drive_current_drivestraight = encoder_leftdrive.getPosition();
     // go_straight(1.2, drive_current_drivestraight);
