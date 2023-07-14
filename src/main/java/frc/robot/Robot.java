@@ -18,6 +18,11 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import java.lang.Math;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.function.DoubleUnaryOperator;
+
+import javax.lang.model.element.Element;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.I2C;
@@ -432,11 +437,13 @@ public class Robot extends TimedRobot {
 
     double kp_spin = 0.017;
     double ki_spin = 0.00000;
-    
+    SmartDashboard.putNumber("HAST", error_spin);
     var result = frontcam.getLatestResult();
+    SmartDashboard.putBoolean("HASSSS",result.hasTargets());
     if(result.hasTargets()){
       error_spin = result.getBestTarget().getYaw();
       cam_pitch_degree = result.getBestTarget().getPitch();
+      
 
       // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
       // TargetPitch.setDouble(cam_pitch_degree);
@@ -473,7 +480,7 @@ public class Robot extends TimedRobot {
 
   public Boolean auto_detect(){
     Boolean autoshoot = false;
-
+    
     if((degtoenc(tarpitch)-encoder_pitch.getPosition())<3){
       if(Math.abs(-targetVelocity_UnitsPer100ms) >= Math.abs(-_talon.getSelectedSensorVelocity())){
         autoshoot = true;
@@ -613,6 +620,7 @@ public class Robot extends TimedRobot {
     GyroYaw.setDouble(gyro.getYaw());
     CurrentShooterSpeed_unitPer100ms.setDouble(current_velocity);
     TargetShooterSpeed.setDouble(setvelo);
+    SmartDashboard.putNumber("intakeMotorTemp", ball_collector.getOutputCurrent());
     // BallColor.setString(get_color());
  }
 
@@ -634,6 +642,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // schedule the autonomous command (example)
+    
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
@@ -669,13 +678,163 @@ public class Robot extends TimedRobot {
     gyro.setYaw(0);
     _talon.set(TalonFXControlMode.PercentOutput, 0);
     ball_collector.set(0); 
-  }
 
+    _talon.set(TalonFXControlMode.PercentOutput, 0);
+
+    mTimer.start();
+    mTimer.reset();
+    while(mTimer.get()<2){
+      if (!limitsw.get()){
+        motor_pitch.set(0);
+        break;
+      }else{
+        motor_pitch.set(0.25);  
+      }
+    }
+
+    encoder_pitch.setPosition(0);
+
+    mTimer.reset();
+    while (mTimer.get()<2){
+      if(limitsw2.get()){
+        motor_spin.set(0);
+        break;
+      }else{
+        motor_spin.set(0.25);
+      }
+    }
+
+    encoder_spin.setPosition(0);
+    encoder_leftdrive.setPosition(0);
+    encoder_rightdrive.setPosition(0);
+    gyro.setYaw(0);
+    _talon.set(TalonFXControlMode.PercentOutput, 0);
+    ball_collector.set(0); 
+
+
+
+    //This is shit
+/************************************************* */
+    mTimer.reset();
+    mTimer.start();
+    STEP = 1;
+    /*
+    encoder_leftdrive.setPosition(0);
+    encoder_rightdrive.setPosition(0);
+    gyro.setYaw(0);
+    while(true){
+      double drive_current_angle = -gyro.getYaw();
+      SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
+      SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
+      SmartDashboard.putNumber("dir", -gyro.getYaw());
+      drive_left_1.set(auto_turn(drive_current_angle, 110));
+      drive_right_2.set(auto_turn(drive_current_angle, 110));
+      
+      auto_shoot();
+
+      if((Math.abs(110-drive_current_angle))<5){
+        break;
+      }
+    }
+      
+    encoder_leftdrive.setPosition(0);
+    encoder_rightdrive.setPosition(0);
+    gyro.setYaw(0);
+    
+    while(true){
+      double drive_current_drivestraight = encoder_leftdrive.getPosition();
+      SmartDashboard.putNumber("dir", -gyro.getYaw());
+      go_straight(1.6, drive_current_drivestraight);
+      SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
+      SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
+      
+      auto_shoot();
+
+      if((Math.abs(21.65*1.6-encoder_leftdrive.getPosition()))<2){
+        break;
+      } 
+       
+    }
+
+    encoder_leftdrive.setPosition(0);
+    encoder_rightdrive.setPosition(0);
+    gyro.setYaw(0);
+    while(true){
+      double drive_current_angle = -gyro.getYaw();
+      SmartDashboard.putNumber("leftwheel", encoder_leftdrive.getPosition());
+      SmartDashboard.putNumber("rightwheel", encoder_rightdrive.getPosition());
+      drive_left_1.set(auto_turn(drive_current_angle, -30));
+      drive_right_2.set(auto_turn(drive_current_angle, -30));
+      SmartDashboard.putNumber("to", auto_turn(drive_current_angle, -30));
+      SmartDashboard.putNumber("dir", -gyro.getYaw());
+      auto_shoot();
+
+      if((Math.abs(-10-drive_current_angle))<5){
+        
+        break;
+        
+      }
+      
+    }
+
+    encoder_leftdrive.setPosition(0);
+    encoder_rightdrive.setPosition(0);
+    gyro.setYaw(0);
+    
+    while(true){
+      double drive_current_drivestraight = encoder_leftdrive.getPosition();
+      go_straight(2.1, drive_current_drivestraight);
+      SmartDashboard.putBoolean("finish", true);
+      SmartDashboard.putNumber("dir", -gyro.getYaw());
+      auto_shoot();
+      if((Math.abs(21.65*2.1-encoder_leftdrive.getPosition()))<2){
+        break;
+      } 
+    }
+    
+    while(true){
+      drive_left_1.set(0);
+      drive_right_2.set(0);
+      auto_shoot();
+      if(auto_detect()){
+        ball_transmitor_2.set(-0.7);
+        motor_transmit_3.set(-0.75);
+        
+      }
+    }*/
+  }
+  
   /**
    * This function is called periodically during autonomous.
    */
   @Override
   public void autonomousPeriodic() {
+    SmartDashboard.putNumber("step", STEP);
+    switch(STEP){
+      case 0:
+          m_pneumatic.intakeDown();
+          ball_collector.set(0.5);
+          if(mTimer.get() > 0.2){
+            STEP=1;
+          }
+          break;
+      case 1:
+          double drive_current_drivestraight = encoder_leftdrive.getPosition();
+          go_straight(1.2, drive_current_drivestraight);
+          if(Math.abs(21.65*1.2-Math.abs(encoder_leftdrive.getPosition()))<5)
+          {STEP=2;}
+          break;
+      case 2:
+          m_driver.arcadeDrive(0, 0);
+          auto_spin();
+          auto_pitch();
+          auto_shooter();
+          kaipao();
+          break;
+      default:
+          break;
+    }
+    /*
   
     m_pneumatic.intakeDown();
 
@@ -690,9 +849,9 @@ public class Robot extends TimedRobot {
     
     mTimer.reset();
     
-    /**
-     * goto 1st ball and shooter 2 balls.
-     */
+    
+    // goto 1st ball and shooter 2 balls.
+     
     //while(true){
     while(mTimer.get()<2){
       // SmartDashboard.putNumber("AUTO_DriverDircation", -gyro.getYaw());
@@ -727,10 +886,7 @@ public class Robot extends TimedRobot {
         ball_transmitor_2.set(0);
         motor_transmit_3.set(0);
         
-        
-      
-    }
-
+    */
     
     // encoder_leftdrive.setPosition(0);
     // encoder_rightdrive.setPosition(0);
@@ -1099,11 +1255,35 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    chuansongzu(0);
     // gyro.setYaw(0);
     // encoder_leftdrive.setPosition(0);
     // encoder_rightdrive.setPosition(0);
     // Cancels all running commands at the start of test mode.
-    
+    while(true){
+      if (!limitsw.get()){
+        motor_pitch.set(0);
+        
+        break;
+      }else{
+        motor_pitch.set(0.25);
+      }
+    }
+    encoder_pitch.setPosition(0);
+
+    while (true){
+      if(limitsw2.get()){
+        motor_spin.set(0);
+        break;
+      }else{
+        
+        motor_spin.set(0.25);
+      }
+    }
+    encoder_spin.setPosition(0);
+    encoder_leftdrive.setPosition(0);
+
+
   
     /*
     while (true){
@@ -1123,12 +1303,141 @@ public class Robot extends TimedRobot {
     //left_belt.set(ControlMode.PercentOutput,0.5);
    
   }
+  public void auto_shoot2(){
+    double kp_spin = 0.017;
+    double ki_spin = 0.00000;
+    SmartDashboard.putNumber("HAST", error_spin);
+    var result = frontcam.getLatestResult();
+    SmartDashboard.putBoolean("HASSSS",result.hasTargets());
+    if(result.hasTargets()){
+      error_spin = result.getBestTarget().getYaw();
+      cam_pitch_degree = result.getBestTarget().getPitch();
+      // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
+      // TargetPitch.setDouble(cam_pitch_degree);
+      Integral_spin = (Integral_spin + error_spin);
+      spin_input = (error_spin * kp_spin)+(ki_spin*Integral);
+      previous_error_spin = error_spin;
+      distance = get_distance(cam_pitch_degree);
+      tarpitch = cal_degree(distance, target_height_m, camera_height_m);
+      if (tarpitch<45){
+        motor_pitch.set(0);
+      }else if(tarpitch>80){
+        motor_pitch.set(0);
+      }else{
+        motor_pitch.set(setang(0.01, 0.000015, 0, degtoenc(tarpitch)-encoder_pitch.getPosition()));
+      }
+      // SmartDashboard.putNumber("PitchAngle_Unit", encoder_pitch.getPosition());
+      // SmartDashboard.putNumber("PitchDeg", spinenctodeg(encoder_pitch.getPosition()));
+      PitchAngle_Degree.setDouble(spinenctodeg(encoder_pitch.getPosition()));
+      // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
+      SetPitch.setDouble(tarpitch);
+      double vertedcon_velo = cal_velo(distance, target_height_m, camera_height_m)*100/Math.PI/10.16/1.5/10*2048;
+      launcher_set(vertedcon_velo);
+    }else{
+      spin_input = -0.2;
+    }
+  }
+  
+  public void auto_spin(){
+    double kp_spin = 0.017;
+    double ki_spin = 0.00000;
+    double error_spin = 0;
+    double spin_input = 0;
+    double Integral_spin = 0;
+    double Integral = 0;
+    double previous_error_spin = 0;
+    var result = frontcam.getLatestResult();
+    if(result.hasTargets()){
+      error_spin = result.getBestTarget().getYaw();
+      cam_pitch_degree = result.getBestTarget().getPitch();
+      // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
+      // TargetPitch.setDouble(cam_pitch_degree);
+      Integral_spin = (Integral_spin + error_spin);
+      spin_input = (error_spin * kp_spin)+(ki_spin*Integral);
+      previous_error_spin = error_spin;
+      motor_spin.set(spin_input);
+    }else{
+      motor_spin.set(-0.2);
+    }
+    
+  }
+
+  public void auto_pitch(){
+    var result = frontcam.getLatestResult();
+    if(result.hasTargets()){
+      cam_pitch_degree = result.getBestTarget().getPitch();
+      distance = get_distance(cam_pitch_degree);
+      tarpitch = cal_degree(distance, target_height_m, camera_height_m);
+      if (tarpitch<45){
+        motor_pitch.set(0);
+      }else if(tarpitch>80){
+        motor_pitch.set(0);
+      }else{
+        motor_pitch.set(setang(0.01, 0.000015, 0, degtoenc(tarpitch)-encoder_pitch.getPosition()));
+      }
+    }
+  }
+
+  public void  auto_shooter(){
+    var result = frontcam.getLatestResult();
+    SmartDashboard.putBoolean("HASSSS",result.hasTargets());
+    if(result.hasTargets()){
+      error_spin = result.getBestTarget().getYaw();
+      cam_pitch_degree = result.getBestTarget().getPitch();
+      // SmartDashboard.putNumber("TargetPitchDegree", cam_pitch_degree);
+      // TargetPitch.setDouble(cam_pitch_degree);
+      distance = get_distance(cam_pitch_degree);
+      tarpitch = cal_degree(distance, target_height_m, camera_height_m);
+      // SmartDashboard.putNumber("PitchAngle_Unit", encoder_pitch.getPosition());
+      // SmartDashboard.putNumber("PitchDeg", spinenctodeg(encoder_pitch.getPosition()));
+      PitchAngle_Degree.setDouble(spinenctodeg(encoder_pitch.getPosition()));
+      // SmartDashboard.putNumber("SetPitchAngle",tarpitch);
+      // SetPitch.setDouble(tarpitch);
+      double vertedcon_velo = cal_velo(distance, target_height_m, camera_height_m)*100/Math.PI/10.16/1.5/10*2048;
+      launcher_set(vertedcon_velo);
+      SmartDashboard.putNumber("SHOOTER_V", vertedcon_velo);
+    }else{
+      launcher_set(2000);
+    }
+
+  }
+  public void zuijiamubiao(){
+    
+  }
+  public void chuansongzu(double sudu){
+    ball_transmitor_1.set(-sudu*Inv);
+    ball_transmitor_2.set(-sudu*Inv);
+    motor_transmit_3.set(-sudu); 
+  }
+  public void kaipao(){
+    if (frontcam.getLatestResult().hasTargets()){
+      if((degtoenc(tarpitch)-encoder_pitch.getPosition())<5){
+        if(Math.abs(-targetVelocity_UnitsPer100ms) >= Math.abs(-_talon.getSelectedSensorVelocity())){
+          chuansongzu(0.8);
+        }else{
+          
+        }
+      }else{
+
+      }
+    }
+    SmartDashboard.putBoolean("hasT??", frontcam.getLatestResult().hasTargets());
+    SmartDashboard.putBoolean("pitch??",(degtoenc(tarpitch)-encoder_pitch.getPosition())<5);
+    SmartDashboard.putNumber("degTarPitch", degtoenc(tarpitch));
+    SmartDashboard.putNumber("sensorPitch", encoder_pitch.getPosition());
+    SmartDashboard.putBoolean("velo???", Math.abs(-targetVelocity_UnitsPer100ms) <= Math.abs(-_talon.getSelectedSensorVelocity()));
+    SmartDashboard.putNumber("tarvelo", Math.abs(-targetVelocity_UnitsPer100ms));
+    SmartDashboard.putNumber("sensorVelo", Math.abs(-_talon.getSelectedSensorVelocity()));
+  }
 
   /**
    * This function is called periodically during test mode.
    */
+  int STEP=0;
   @Override
   public void testPeriodic() {
+
+
     // double gyro.getYaw() = -gyro.getYaw();
     // drive_left_1.set(auto_turn(gyro.getYaw(), -110));
     // drive_right_2.set(-auto_turn(gyro.getYaw(), -110));
